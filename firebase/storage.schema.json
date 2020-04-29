@@ -1,0 +1,24 @@
+{
+  "tracks": {
+    "$uid$": {
+      "currentTrack": {
+        "project": "",
+        "track": "",
+        "start": 12345
+      },
+      "projects": {
+        "default": {
+          "$track name$" : {
+            "periods": [
+              {
+                "start": 12345,
+                "end": 12345,
+                "desc": ""
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}
