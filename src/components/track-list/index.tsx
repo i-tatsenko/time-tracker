@@ -15,11 +15,10 @@ const Root = function ({authStore, trackStore}: Props) {
             <div>Authenticate to view the list of your tracks</div>
         )
     }
-    const tracks = trackStore?.tracks || new Map();
-
+    let tracks = Array.from((trackStore?.tracks || new Map()).keys());
     return (
         <List>
-            {Array.from(tracks.keys()).map(trackName => {
+            {tracks.map(trackName => {
                 return ([
                     <ListItem key={trackName}>
                         <ListItemText>{trackName}</ListItemText>
