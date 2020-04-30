@@ -3,26 +3,24 @@ import {db, flatten} from "../lib/firebase";
 import authStore from "./auth";
 import * as firebase from "firebase/app";
 import moment from "moment";
+import {prependZero, round} from "../util/Time";
 
 export class Period {
-    constructor(readonly start: number, readonly end: number | null, public desc: string | null) {
+    constructor(readonly start: number, readonly end: number, public desc: string | null) {
     }
 
+    static totalTime(period: Period): number {
+        return period.end - period.start
+    }
 }
 
 export class CurrentTrack {
-
     constructor(readonly project: string, readonly name: string, readonly desc: string | null, readonly start: number, readonly elapsed: string) {
     }
-
 }
 
 export class Track {
-    constructor(public periods: Period[]) {
-    }
-
-    inProgress(): boolean {
-        return this.periods.length !== 0 && this.periods[0].end == null;
+    constructor(readonly periods: Period[], readonly updated: number) {
     }
 }
 
@@ -40,7 +38,7 @@ export class TrackStore {
             if (!!uid) {
                 this.docRef = db().collection('tracks').doc(uid);
                 this.docRef.onSnapshot({includeMetadataChanges: true}, doc => {
-                    if (!doc.metadata.hasPendingWrites) {
+                    if (!doc.metadata.hasPendingWrites && !doc.metadata.fromCache) {
                         this.processTracks(doc)
                     }
                 });
@@ -70,20 +68,16 @@ export class TrackStore {
         if (duration.asMinutes() < 1) {
             return duration.seconds() + " seconds"
         } else {
-            result = TrackStore.prependZero(duration.seconds());
+            result = prependZero(duration.seconds());
         }
-        result = `${TrackStore.prependZero(duration.minutes())}:${result}`
+        result = `${prependZero(duration.minutes())}:${result}`
         if (duration.hours() !== 0) {
-            result = `${TrackStore.prependZero(duration.hours())}:${result}`;
+            result = `${prependZero(duration.hours())}:${result}`;
         }
         if (duration.days() !== 0) {
             result = `${duration.days()} days ${result}`
         }
         return result;
-    }
-
-    private static prependZero(i: number): string {
-        return i < 10 ? "0" + i : i.toString();
     }
 
     @action
@@ -117,10 +111,11 @@ export class TrackStore {
             throw new Error("Nothing to stop");
         }
         const {project, name, desc, start} = this.currentTrack;
-        const period = new Period(start, new Date().getTime(), desc);
+        const period = new Period(round(start), round(new Date().getTime()), desc);
         this.trackRef().update({
             currentTrack: null,
-            [`projects.${project}.${name}.periods`]: firebase.firestore.FieldValue.arrayUnion(flatten(period))
+            [`projects.${project}.${name}.periods`]: firebase.firestore.FieldValue.arrayUnion(flatten(period)),
+            [`projects.${project}.${name}.updated`]: new Date().getTime()
         })
     }
 
@@ -128,6 +123,8 @@ export class TrackStore {
         return this.docRef!;
     }
 }
+
+
 
 const trackStore = new TrackStore();
 export default trackStore;

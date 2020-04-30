@@ -17,4 +17,14 @@ const Root: React.FC<Props> = ({authStore, children}: Props) => {
     )
 }
 
-export default inject('authStore')(observer(Root))
+const ifAuthenticated = ({authStore, children}: Props) => {
+    if (authStore?.isAuthenticated) {
+        return children
+    }
+    return null;
+}
+
+const IfAuthenticated = inject('authStore')(observer(ifAuthenticated))
+
+export {IfAuthenticated};
+export default inject('authStore')(observer(Root));

@@ -4,6 +4,7 @@ import TimerIcon from "@material-ui/icons/Timer";
 import {makeStyles} from "@material-ui/core/styles";
 import {TrackStore} from "../../store/track";
 import {inject, observer} from "mobx-react";
+import {IfAuthenticated} from "../wait-for-auth";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -29,7 +30,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface StartTrackProps {
-    trackStore?: TrackStore
+    trackStore?: TrackStore,
 }
 
 let Root = function ({trackStore}: StartTrackProps) {
@@ -67,15 +68,18 @@ let Root = function ({trackStore}: StartTrackProps) {
                             <Grid item xs={12}>
                                 <TextField label="Name" onChange={e => setNewTrackName(e.target.value)} required/>
                             </Grid>
-                            <Grid item xs={9}><TextField label="Description" onChange={e => setNewTrackDesc(e.target.value)} required/></Grid>
-                            <Grid item xs={2}><Button disabled={!newTrackName} variant="contained" color="primary" onClick={() => startNewTrack()}>Ok</Button></Grid>
+                            <Grid item xs={9}><TextField label="Description"
+                                                         onChange={e => setNewTrackDesc(e.target.value)}
+                                                         required/></Grid>
+                            <Grid item xs={2}><Button disabled={!newTrackName} variant="contained" color="primary"
+                                                      onClick={() => startNewTrack()}>Ok</Button></Grid>
                         </Grid>
                     </form>
                 </div>
             </Modal>
-            <ActionButton/>
+            <IfAuthenticated><ActionButton/></IfAuthenticated>
         </div>
     )
 };
-export default inject('trackStore')(observer(Root))
+export default inject("trackStore")(observer(Root))
 

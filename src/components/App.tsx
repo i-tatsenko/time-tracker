@@ -8,7 +8,7 @@ import {Provider} from "mobx-react";
 import StartTrack from "./start-track"
 import TrackList from "./track-list"
 import trackStore from "../store/track";
-import WaitForAuth from "./wait-for-auth"
+import WaitForAuth, {IfAuthenticated} from "./wait-for-auth"
 import CurrentTrack from "./current-track"
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -40,10 +40,8 @@ function App() {
                         </WaitForAuth>
                     </Toolbar>
                 </AppBar>
-                <WaitForAuth>
-                    <CurrentTrack/>
-                    <TrackList/>
-                </WaitForAuth>
+                <IfAuthenticated><CurrentTrack/></IfAuthenticated>
+                <TrackList/>
                 <StartTrack/>
             </Container>
         </Provider>
